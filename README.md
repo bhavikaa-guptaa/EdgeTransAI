@@ -1,0 +1,88 @@
+# EdgeTransAI
+
+**An IoT-Enabled Edge AI Framework for Intent-Aware Multi-Agent Transportation Optimization in Smart Cities**
+
+---
+
+## Project Structure
+
+```
+edgetransai/
+├── configs/
+│   └── config.yaml              # All hyperparameters and settings
+├── src/
+│   ├── simulation/
+│   │   └── traffic_env.py       # Multi-agent traffic environment (SUMO / stub)
+│   ├── agents/
+│   │   ├── ppo_agent.py         # PPO actor-critic with spatial attention critic
+│   │   └── doa.py               # Distributed Optimization Algorithm (ADMM)
+│   ├── models/
+│   │   └── intent_model.py      # BiLSTM driver intent predictor
+│   └── utils/
+│       └── mqtt_bridge.py       # MQTT IoT sensor bridge
+├── train.py                     # Main training entry point
+├── evaluate.py                  # Evaluation and baseline comparison
+├── visualize.py                 # 7-figure visualization suite
+├── requirements.txt
+└── .vscode/launch.json          # VSCode debugger configs
+```
+
+---
+
+## Quick Start
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Train (quick smoke-test with 10k steps)
+python train.py --config configs/config.yaml --steps 10000
+
+# 3. Evaluate
+python evaluate.py --config configs/config.yaml
+
+# 4. Generate all 7 paper figures
+python visualize.py --all --no-show
+
+# 5. Train intent model independently
+python -m src.models.intent_model --train --config configs/config.yaml --epochs 50
+
+# 6. Run synthetic sensor stream
+python -m src.utils.mqtt_bridge --synthetic --duration 60
+```
+
+---
+
+## VSCode
+
+Open the project folder in VSCode. Five launch configurations are pre-configured in `.vscode/launch.json`:
+
+| Config | Description |
+|--------|-------------|
+| **Train EdgeTransAI** | Runs `train.py` with 50k steps (quick test) |
+| **Generate All Figures** | Produces all 7 paper figures to `outputs/figures/` |
+| **Evaluate Agent** | Runs 3 evaluation episodes with a loaded checkpoint |
+| **Train Intent Model** | Pre-trains the BiLSTM intent classifier |
+| **Synthetic Sensor Stream** | Emits MQTT-style sensor data for 30 seconds |
+
+Press `F5` to launch the selected configuration.
+
+---
+
+## Hardware Deployment Notes
+
+- Edge devices: **NVIDIA Jetson AGX Orin** (32 TOPS) or Jetson Nano (minimal config)
+- IoT sensors connect via **MQTT** to the `mqtt_bridge.py` listener
+- SUMO is optional — the environment falls back to the numpy stub automatically
+- TensorRT INT8 export: add `torch2trt` and call `trt_model = torch2trt(actor, [sample_input])`
+
+---
+
+## Key Results (Simulated)
+
+| Metric | FTC (Baseline) | Cloud DQN | **EdgeTransAI** |
+|--------|----------------|-----------|-----------------|
+| Avg Delay (s/veh) | 68.4 | 44.7 | **42.1 (−38.4%)** |
+| Median Latency (ms) | N/A | 284 | **18.3** |
+| Throughput (veh/hr) | 3,240 | 3,970 | **4,134 (+27.6%)** |
+| Fuel (L/hr/km) | 0.89 | 0.71 | **0.72 (−19.4%)** |

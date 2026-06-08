@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+env/
+
+# Outputs (keep checkpoints and figures, ignore logs)
+outputs/logs/
+outputs/ablation*
+
+# Old rp graphs folder (replaced by outputs/figures)
+rp/graphs/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

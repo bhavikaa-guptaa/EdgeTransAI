@@ -1,0 +1,99 @@
+# EdgeTransAI Configuration File
+# ================================
+
+project:
+  name: EdgeTransAI
+  version: "1.0.0"
+  description: "IoT-Enabled Edge AI Framework for Intent-Aware Multi-Agent Transportation Optimization"
+
+# --- Environment ---
+environment:
+  num_intersections: 16
+  grid_size: [4, 4]              # 4x4 intersection grid
+  simulation_steps: 3600         # 1 hour in seconds
+  time_step: 5                   # seconds per step
+  num_phases: 8
+  min_green: 5                   # seconds
+  max_green: 90                  # seconds
+  yellow_time: 3                 # seconds
+
+# --- Agent ---
+agent:
+  state_dim: 49                  # queue(32) + speed(4) + phase(8) + elapsed(1) + intent(4)
+  action_dim: 8
+  hidden_dims: [256, 256]
+  learning_rate: 3.0e-4
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_epsilon: 0.2
+  entropy_coeff: 0.01
+  value_coeff: 0.5
+  batch_size: 2048
+  mini_batch_size: 256
+  ppo_epochs: 10
+  max_grad_norm: 0.5
+
+# --- Intent Model ---
+intent_model:
+  input_dim: 4                   # [x, y, vx, vy]
+  hidden_dim: 128
+  num_layers: 2
+  num_classes: 4                 # straight, left, right, u-turn
+  sequence_length: 10
+  learning_rate: 1.0e-3
+  dropout: 0.2
+
+# --- Traffic Prediction ---
+traffic_predictor:
+  input_window: 24               # historical steps
+  output_window: 12              # forecast horizon
+  hidden_dim: 64
+  num_layers: 2
+  learning_rate: 1.0e-3
+
+# --- Distributed Optimization ---
+doa:
+  rho: 0.1                       # ADMM penalty
+  sync_period_ms: 500
+  convergence_tol: 1.0e-4
+  feasibility_tol: 1.0e-3
+  max_iterations: 200
+
+# --- Reward Weights ---
+reward:
+  alpha: 0.4                     # queue weight
+  beta: 0.4                      # waiting time weight
+  gamma: 0.2                     # phase change penalty
+
+# --- Edge Deployment ---
+edge:
+  num_nodes: 4                   # edge coordination agents
+  region_size: 4                 # intersections per region
+  replay_buffer_size: 50000
+  update_interval: 500           # steps
+
+# --- MQTT ---
+mqtt:
+  broker: "localhost"
+  port: 1883
+  topics:
+    sensor_data: "edgetransai/sensors/+"
+    signal_control: "edgetransai/signals/+"
+    intent: "edgetransai/intent/+"
+
+# --- Training ---
+training:
+  total_steps: 500000
+  eval_interval: 5000
+  save_interval: 10000
+  log_interval: 1000
+  num_envs: 4                    # parallel SUMO instances
+  seed: 42
+
+# --- Paths ---
+paths:
+  data_dir: "data"
+  output_dir: "outputs"
+  checkpoint_dir: "outputs/checkpoints"
+  figures_dir: "outputs/figures"
+  logs_dir: "outputs/logs"
