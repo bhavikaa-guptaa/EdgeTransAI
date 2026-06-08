@@ -27,24 +27,29 @@ This is a simulation study and design blueprint. Physical deployment on Chennai 
 ## Project Structure
 
 ```
-edgetransai/
-├── configs/
-│   └── config.yaml              # All hyperparameters and settings
-├── src/
-│   ├── simulation/
-│   │   └── traffic_env.py       # Multi-agent traffic environment (SUMO / stub)
-│   ├── agents/
-│   │   ├── ppo_agent.py         # PPO actor-critic with spatial attention critic
-│   │   └── doa.py               # Distributed Optimization Algorithm (ADMM)
-│   ├── models/
-│   │   └── intent_model.py      # BiLSTM driver intent predictor
-│   └── utils/
-│       └── mqtt_bridge.py       # MQTT IoT sensor bridge
-├── train.py                     # Main training entry point
-├── evaluate.py                  # Evaluation and baseline comparison
-├── visualize.py                 # 7-figure visualization suite
+EdgeTransAI/
+├── train.py                          # PPO training loop
+├── evaluate.py                       # Baseline comparison
+├── visualize.py                      # Generates all paper figures
 ├── requirements.txt
-└── .vscode/launch.json          # VSCode debugger configs
+├── configs/
+│   └── config.yaml                   # All hyperparameters
+├── src/
+│   ├── agents/
+│   │   ├── ppo_agent.py              # PPO actor + spatially-attended critic
+│   │   └── doa.py                    # Distributed Optimisation Algorithm (ADMM)
+│   ├── models/
+│   │   └── intent_model.py           # BiLSTM trajectory encoder, 4-class intent head
+│   ├── simulation/
+│   │   └── traffic_env.py            # Gymnasium-compatible Dec-POMDP environment
+│   └── utils/
+│       └── mqtt_bridge.py            # MQTT sensor data pipeline
+├── rp/
+│   ├── simulation.py                 # Calibrated simulation data for figures
+│   └── graphs.py                     # Figure generation (all 7 paper figures)
+└── outputs/
+    └── checkpoints/
+        └── intent_best.pt            # Trained BiLSTM checkpoint
 ```
 
 ---
